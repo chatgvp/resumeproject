@@ -6,21 +6,11 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.core.files.storage import default_storage
 from django.core.files.base import ContentFile
-from transformers import AutoTokenizer, LlamaForCausalLM
 
-model = LlamaForCausalLM.from_pretrained("gpena8826/resumeproject")
-tokenizer = AutoTokenizer.from_pretrained("gpena8826/resumeproject")
+# Use a pipeline as a high-level helper
+# from transformers import pipeline
 
-prompt = "Hey, are you conscious? Can you talk to me?"
-inputs = tokenizer(prompt, return_tensors="pt")
-
-# Generate
-generate_ids = model.generate(
-    inputs.input_ids, attention_mask=inputs.attention_mask, max_length=30
-)
-generated_text = tokenizer.decode(generate_ids[0], skip_special_tokens=True)
-
-print(generated_text)
+# pipe = pipeline("text-generation", model="meta-llama/Llama-2-70b-chat-hf")
 
 
 class PdfToJsonView(APIView):
