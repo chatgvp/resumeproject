@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Simple Card with AJAX</title>
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
+            rel="stylesheet" />
+        <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="card mt-4">
+                        <div class="card-body">
+                            <h2 class="card-title"><b>Text API</b></h2>
+                            <form id="inputForm" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <div class="mb-3">
+                                    <label for="input" class="form-label"
+                                        >The Nutrition API extracts nutrition
+                                        information from text using natural
+                                        language processing. From food blogs to
+                                        menus to recipes, it can read any text
+                                        and calculate the corresponding
+                                        nutrition data.</label
+                                    >
+                                    <!-- Input file that accepts PDF and Word documents -->
+                                    <input
+                                        type="file"
+                                        class="form-control"
+                                        id="inputFile"
+                                        accept=".pdf,.doc,.docx" />
+                                </div>
+                                <button type="submit" class="btn btn-primary">
+                                    Search
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="card mt-4">
+                        <div class="card-body" id="jsonContainer"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+    <script>
+        $("#inputForm").submit(function (event) {
+            event.preventDefault()
+            var csrfToken = $("[name=csrfmiddlewaretoken]").val() // Get the CSRF token
+            var formData = new FormData() // Create a FormData object to send the file
+            formData.append("csrfmiddlewaretoken", csrfToken) // Append CSRF token to the FormData
+            formData.append("pdf_file", $("#inputFile")[0].files[0]) // Append the file to the FormData
+
+            console.log($("#inputFile")[0].files[0])
+            $("#jsonContainer").empty()
+
+            $.ajax({
+                url: "pdf-to-json/",
+                type: "POST", // Send as POST request to handle file upload
+                data: formData,
+                processData: false,
+                contentType: false,
+                success: function (response) {
+                    console.log(response)
+                    // Handle the JSON response here and display it on the page as needed
+                    // For example, $("#jsonContainer").text(JSON.stringify(response));
+                },
+                error: function (xhr, status, error) {
+                    console.error("Error occurred while fetching data:", error)
+                },
+            })
+        })
+    </script>
+</html>
