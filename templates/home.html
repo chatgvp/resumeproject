@@ -53,24 +53,23 @@
     <script>
         $("#inputForm").submit(function (event) {
             event.preventDefault()
-            var csrfToken = $("[name=csrfmiddlewaretoken]").val() // Get the CSRF token
-            var formData = new FormData() // Create a FormData object to send the file
-            formData.append("csrfmiddlewaretoken", csrfToken) // Append CSRF token to the FormData
-            formData.append("pdf_file", $("#inputFile")[0].files[0]) // Append the file to the FormData
+            var csrfToken = $("[name=csrfmiddlewaretoken]").val()
+            var formData = new FormData()
+            formData.append("csrfmiddlewaretoken", csrfToken)
+            formData.append("pdf_file", $("#inputFile")[0].files[0])
 
-            console.log($("#inputFile")[0].files[0])
-            $("#jsonContainer").empty()
+            $("#jsonContainer").empty() // Clear previous content
 
             $.ajax({
                 url: "pdf-to-json/",
-                type: "POST", // Send as POST request to handle file upload
+                type: "POST",
                 data: formData,
                 processData: false,
                 contentType: false,
                 success: function (response) {
-                    console.log(response)
-                    // Handle the JSON response here and display it on the page as needed
-                    // For example, $("#jsonContainer").text(JSON.stringify(response));
+                    // Display the JSON response in the jsonContainer element
+                    var jsonString = JSON.stringify(response, null, 2)
+                    $("#jsonContainer").text(jsonString)
                 },
                 error: function (xhr, status, error) {
                     console.error("Error occurred while fetching data:", error)

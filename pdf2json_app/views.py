@@ -1,30 +1,42 @@
-import PyPDF2
-from rest_framework.decorators import api_view
-from rest_framework.response import Response
-from .serializers import PDFSerializer
 from django.shortcuts import render
-import pdfplumber
-from django.http import JsonResponse
-from django.core.serializers.json import DjangoJSONEncoder
-import json
 
 
-@api_view(["POST"])
-def pdf_to_json(request):
-    if "pdf_file" in request.FILES:
-        pdf_file = request.FILES["pdf_file"]
-        # with open(pdf_file, "rb") as f:
-        #     pdf = PyPDF2.PdfReader(f)
-        #     text = ""
-        #     for page in pdf.pages:
-        #         text += page.extract_text()
-        #     print(text)
-        sample_json_data = {"key": "value"}
-        json_data = json.dumps(sample_json_data, cls=DjangoJSONEncoder)
+import PyPDF2
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from django.core.files.storage import default_storage
+from django.core.files.base import ContentFile
 
-        return JsonResponse(json_data, safe=False)
 
-    return JsonResponse({"error": "No PDF file provided."}, status=400)
+class PdfToJsonView(APIView):
+    def post(self, request, *args, **kwargs):
+        if "pdf_file" in request.FILES:
+            pdf_file = request.FILES["pdf_file"]
+            pdf_reader = PyPDF2.PdfReader(pdf_file)
+            text = ""
+            for page in pdf_reader.pages:
+                text += page.extract_text()
+            response_data = text
+            return Response(response_data, content_type="application/json")
+        else:
+            return Response({"error": "No PDF file was uploaded."}, status=400)
+
+
+# class PdfToJsonView(APIView):
+#     def post(self, request, *args, **kwargs):
+#         if "pdf_file" in request.FILES:
+#             pdf_file = request.FILES["pdf_file"]
+#             file_path = default_storage.save(
+#                 pdf_file.name, ContentFile(pdf_file.read())
+#             )
+#             response_data = {
+#                 "file_name": pdf_file.name,
+#                 "file_path": file_path,
+#                 "file_size": pdf_file.size,
+#             }
+#             return Response(response_data)
+#         else:
+#             return Response({"error": "No PDF file was uploaded."}, status=400)
 
 
 def home(request):
